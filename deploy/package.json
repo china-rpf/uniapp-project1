@@ -1,0 +1,26 @@
+{
+  "name": "vc-deploy",
+  "version": "1.0.0",
+  "description": "虚拟班级项目部署工具",
+  "main": "cli.js",
+  "scripts": {
+    "push": "node cli.js push",
+    "push:backend": "node cli.js push:backend",
+    "push:frontend": "node cli.js push:frontend",
+    "deploy": "node cli.js deploy:all",
+    "deploy:backend": "node cli.js deploy:backend",
+    "deploy:frontend": "node cli.js deploy:frontend",
+    "status": "node cli.js status",
+    "logs": "node cli.js logs",
+    "restart": "node cli.js restart",
+    "stop": "node cli.js stop",
+    "setup": "node cli.js setup"
+  },
+  "keywords": ["deploy", "ssh", "pm2", "nginx"],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "ssh2": "^1.17.0"
+  }
+}

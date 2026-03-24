@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node -e \":*)",
+      "Bash(node -e:*)",
+      "Bash(pip install:*)",
+      "Bash(powershell.exe -Command \"& {echo y | plink -ssh renpengfei@192.18.170.128 -pw 123456 ''cat /etc/os-release''}\")",
+      "Bash(apt-get install:*)",
+      "Bash(python -c \":*)",
+      "Bash(powershell.exe -Command \"python --version\")",
+      "Bash(powershell.exe -Command \"ssh -o StrictHostKeyChecking=no -o PreferredAuthentications=password -o PubkeyAuthentication=no renpengfei@192.18.170.128 ''echo test''\")",
+      "Bash(ping -n 3 192.18.170.128)",
+      "Bash(ping -n 2 192.168.1.5)",
+      "Bash(powershell.exe -Command \"ssh -o StrictHostKeyChecking=no -o PreferredAuthentications=password -o PubkeyAuthentication=no renpengfei@192.168.1.5 ''uname -a''\")",
+      "Bash(powershell.exe -NoProfile -Command ':*)",
+      "Bash(cmd.exe /c \"echo y | C:\\\\Users\\\\DIY\\\\AppData\\\\Local\\\\Temp\\\\plink.exe -ssh renpengfei@192.168.1.5 -pw 123456 echo connected\")",
+      "Read(//c/Users/DIY/.ssh/**)",
+      "Bash(mkdir -p ~/.ssh)",
+      "Bash(node deploy-ubuntu.js)"
+    ]
+  }
+}

@@ -1,0 +1,240 @@
+// =============================================
+// 虚拟班级小程序 - 荟聚风格设计系统
+// 温暖 · 现代 · 清新
+// =============================================
+
+// 🎨 品牌色
+$brand-yellow: #FBD914;
+$brand-yellow-dark: #F5C518;
+$brand-yellow-light: #FFF3C4;
+$brand-green: #2E7D6F;
+$brand-green-light: #E8F5F0;
+$brand-green-dark: #1B5E50;
+
+// 🎨 主色系 - 以绿色为主色
+$primary: #2E7D6F;
+$primary-light: #4A9E8E;
+$primary-bg: rgba(46, 125, 111, 0.08);
+$primary-dark: #1B5E50;
+
+$accent: #FBD914;
+$accent-dark: #E5C412;
+$accent-light: #FFF8DC;
+
+// 辅助色
+$success: #00995B;
+$success-light: rgba(0, 153, 91, 0.1);
+$warning: #E8A838;
+$warning-light: rgba(232, 168, 56, 0.1);
+$danger: #D94545;
+$danger-light: rgba(217, 69, 69, 0.1);
+$info: #5BA4E6;
+$info-light: rgba(91, 164, 230, 0.1);
+
+// 中性色
+$text-primary: #1A1A1A;
+$text-secondary: #5C5C5C;
+$text-hint: #999999;
+$text-light: #CCCCCC;
+$text-white: #FFFFFF;
+
+// 背景色
+$bg-page: #F5F5F5;
+$bg-card: #FFFFFF;
+$bg-input: #F7F7F7;
+$bg-hover: #F0F0F0;
+$bg-green: #E8F5F0;
+$bg-yellow: #FFF8DC;
+$bg-warm: #FFF9E6;
+
+// 边框
+$border-color: #EEEEEE;
+$border-light: #F5F5F5;
+
+// 圆角
+$radius-xs: 4rpx;
+$radius-sm: 8rpx;
+$radius-md: 12rpx;
+$radius-lg: 16rpx;
+$radius-xl: 24rpx;
+$radius-2xl: 32rpx;
+$radius-full: 9999rpx;
+
+// 阴影
+$shadow-sm: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
+$shadow-md: 0 4rpx 16rpx rgba(0, 0, 0, 0.06);
+$shadow-lg: 0 8rpx 32rpx rgba(0, 0, 0, 0.08);
+$shadow-card: 0 2rpx 12rpx rgba(0, 0, 0, 0.05);
+
+// 间距
+$spacing-xs: 8rpx;
+$spacing-sm: 16rpx;
+$spacing-md: 24rpx;
+$spacing-lg: 32rpx;
+$spacing-xl: 48rpx;
+
+// 字号
+$font-xs: 22rpx;
+$font-sm: 24rpx;
+$font-md: 26rpx;
+$font-base: 28rpx;
+$font-lg: 32rpx;
+$font-xl: 36rpx;
+$font-2xl: 44rpx;
+$font-3xl: 52rpx;
+
+// =============================================
+// 📦 卡片效果
+// =============================================
+
+@mixin card {
+  background: $bg-card;
+  border-radius: $radius-xl;
+  box-shadow: $shadow-card;
+}
+
+@mixin card-flat {
+  background: $bg-card;
+  border-radius: $radius-lg;
+}
+
+// =============================================
+// 🔘 按钮效果
+// =============================================
+
+@mixin btn-primary {
+  background: $primary;
+  color: #fff;
+  font-size: $font-base;
+  font-weight: 600;
+  border-radius: $radius-full;
+  border: none;
+
+  &::after {
+    border: none;
+  }
+}
+
+@mixin btn-accent {
+  background: $accent;
+  color: $text-primary;
+  font-size: $font-base;
+  font-weight: 700;
+  border-radius: $radius-full;
+  border: none;
+
+  &::after {
+    border: none;
+  }
+}
+
+@mixin btn-secondary {
+  background: $bg-card;
+  color: $primary;
+  font-size: $font-base;
+  font-weight: 600;
+  border-radius: $radius-full;
+  border: 2rpx solid $primary;
+
+  &::after {
+    border: none;
+  }
+}
+
+@mixin btn-ghost {
+  background: transparent;
+  color: $primary;
+  font-size: $font-base;
+  font-weight: 500;
+  border-radius: $radius-full;
+  border: none;
+
+  &::after {
+    border: none;
+  }
+}
+
+// =============================================
+// 📝 文字效果
+// =============================================
+
+@mixin text-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@mixin text-clamp($lines: 2) {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: $lines;
+  overflow: hidden;
+}
+
+// =============================================
+// 🛠 工具混合
+// =============================================
+
+@mixin safe-area-bottom {
+  padding-bottom: constant(safe-area-inset-bottom);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@mixin flex-start {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+// 标签样式
+@mixin tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 6rpx 16rpx;
+  font-size: $font-xs;
+  border-radius: $radius-full;
+}
+
+@mixin tag-yellow {
+  @include tag;
+  background: $accent;
+  color: $text-primary;
+  font-weight: 600;
+}
+
+@mixin tag-green {
+  @include tag;
+  background: $primary-bg;
+  color: $primary;
+}
+
+@mixin tag-blue {
+  @include tag;
+  background: $info-light;
+  color: $info;
+}
+
+// 渐变背景
+@mixin gradient-yellow {
+  background: linear-gradient(135deg, $accent 0%, $brand-yellow-dark 100%);
+}
+
+@mixin gradient-green {
+  background: linear-gradient(135deg, $brand-green-light 0%, #D4EDE5 100%);
+}
+
+@mixin gradient-warm {
+  background: linear-gradient(180deg, $bg-warm 0%, $bg-page 100%);
+}

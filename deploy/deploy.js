@@ -1,0 +1,106 @@
+const { Client } = require('ssh2');
+const fs = require('fs');
+const path = require('path');
+
+const SSH = { host: '192.168.1.5', port: 22, username: 'root', password: 'root' };
+
+function run(conn, cmd, ms) {
+  if (!ms) ms = 60000;
+  return new Promise((resolve, reject) => {
+    const t = setTimeout(() => reject(new Error('Timeout')), ms);
+    conn.exec(cmd, (err, stream) => {
+        if (err) { clearTimeout(t); return reject(err); }
+        let out = '';
+        stream.on('close', () => { clearTimeout(t); resolve(out); })
+          .on('data', d => { out += d; process.stdout.write(d); })
+          .stderr.on('data', d => { out += d; process.stderr.write(d); });
+      });
+  });
+}
+
+function upload(conn, src, dst) {
+  return new Promise((res, rej) => {
+    conn.sftp((err, sftp) => {
+      if (err) return rej(err);
+      sftp.fastPut(src, dst, err => {
+        if (err) return rej(err);
+        console.log('OK:', dst);
+        res();
+      });
+    });
+  });
+}
+
+function listFiles(dir) {
+  const arr = [];
+  for (const f of fs.readdirSync(dir)) {
+    const p = path.join(dir, f);
+    fs.statSync(p).isDirectory() ? arr.push(...listFiles(p)) : arr.push(p);
+  }
+  return arr;
+}
+
+async function main() {
+  const c = new Client();
+  console.log('Connecting...');
+  await new Promise((r, e) => c.on('ready', r).on('error', e).connect(SSH));
+  console.log('Connected!');
+
+  try {
+    console.log('\n=== 1. Installing PostgreSQL + Redis ===');
+    await run(c, 'yum install -y postgresql-server postgresql redis', 180000);
+    await run(c, 'postgresql-setup initdb 2>/dev/null || true', 30000);
+    await run(c, 'systemctl start postgresql redis', 30000);
+    await run(c, 'systemctl enable postgresql redis', 10000);
+
+    console.log('\n=== 2. Setting up database ===');
+    await run(c, 'su - postgres -c "createuser -D virtual_class -U vcuser -P vcpass123"', 10000);
+    await run(c, 'su - postgres -c "createdb -O vcuser virtual_class"', 10000);
+
+    console.log('\n=== 3. Installing Node.js ===');
+    await run(c, 'cd /tmp && curl -fsSL https://npmmirror.com/mirrors/node/v18.20.2/node-v18.20.2-linux-x64.tar.xz -o n.tar.xz && tar -xf n.tar.xz && mv node-v18.20.2-linux-x64 /usr/local/node && ln -sf /usr/local/node/bin/node /usr/local/bin/ && ln -sf /usr/local/node/bin/npm /usr/local/bin/ && node --version', 120000);
+
+    console.log('\n=== 4. Uploading code ===');
+    await run(c, 'rm -rf /opt/vc && mkdir -p /opt/vc/dist /opt/vc/migrations');
+    await upload(c, 'f:/uniapp-project/server/package.json', '/opt/vc/package.json');
+    await upload(c, 'f:/uniapp-project/server/package-lock.json', '/opt/vc/package-lock.json');
+    
+    const distFiles = listFiles('f:/uniapp-project/server/dist');
+    for (const f of distFiles) {
+      const rel = f.replace('f:\uniapp-project\server\dist\', '').replace(/\/g, '/');
+      const dst = '/opt/vc/dist/' + rel;
+      const dir = path.dirname(dst);
+      await run(c, 'mkdir -p "' + dir + '"');
+      await upload(c, f, dst);
+    }
+    
+    const migFiles = fs.readdirSync('f:/uniapp-project/server/migrations');
+    for (const f of migFiles) {
+      await upload(c, 'f:/uniapp-project/server/migrations/' + f, '/opt/vc/migrations/' + f);
+    }
+
+    console.log('\n=== 5. Installing dependencies ===');
+    await run(c, 'cd /opt/vc && npm install --production --registry=https://registry.npmmirror.com', 120000);
+
+    console.log('\n=== 6. Running migrations ===');
+    await run(c, 'cd /opt/vc && node -e "const pg=require(\'pg\');const fs=require(\'fs\');(async()=>{const p=new pg.Pool({host:\'127.0.0.1\',database:\'virtual_class\',user:\'vcuser\',password:\'vcpass123\'});const c=await p.connect();await c.query(\'CREATE TABLE IF NOT EXISTS _migrations(id SERIAL PRIMARY KEY,name VARCHAR(255) UNIQUE,executed_at TIMESTAMPTZ DEFAULT NOW())\');for(const f of fs.readdirSync(\'./migrations\').filter(f=>f.endsWith(\'.sql\')).sort()){const{rows}=await c.query(\'SELECT id FROM _migrations WHERE name=$1\',[f]);if(rows.length===0){const sql=fs.readFileSync(\'./migrations/\'+f,\'utf8\');try{await c.query(sql);await c.query(\'INSERT INTO _migrations(name) VALUES($1)\',[f]);console.log(\'OK:\',f)}catch(e){console.log(\'FAIL:\',f,e.message)}}}c.release();process.exit(0)})()"', 60000);
+
+    console.log('\n=== 7. Starting server ===');
+    await run(c, 'npm install -g pm2 --registry=https://registry.npmmirror.com', 60000);
+    await run(c, 'cd /opt/vc && pm2 delete vc 2>/dev/null; pm2 start dist/server.js --name vc && pm2 save', 30000);
+
+    console.log('\n=== 8. Verifying ===');
+    await run(c, 'sleep 2 && curl -s http://localhost:3000/health', 10000);
+    await run(c, 'iptables -I INPUT -p tcp --dport 3000 -j ACCEPT 2>/dev/null || true', 10000);
+
+    console.log('\n' + '='.repeat(40));
+    console.log('SUCCESS! http://192.168.1.5:3000');
+    console.log('='.repeat(40));
+  } catch (e) {
+    console.error('ERROR:', e.message);
+  } finally {
+    c.end();
+  }
+}
+
+main();

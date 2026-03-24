@@ -1,0 +1,42 @@
+{
+  "servers": {
+    "production": {
+      "host": "192.168.1.5",
+      "port": 22,
+      "username": "renpengfei",
+      "password": "123456",
+      "os": "ubuntu"
+    },
+    "staging": {
+      "host": "192.168.1.100",
+      "port": 22,
+      "username": "deploy",
+      "password": "password",
+      "os": "centos"
+    }
+  },
+  "backend": {
+    "sourceDir": "../server",
+    "deployPath": "/opt/vc",
+    "startCommand": "dist/server.js",
+    "appName": "vc",
+    "port": 3000
+  },
+  "frontend": {
+    "sourceDir": "../client",
+    "deployPath": "/var/www/vc-client",
+    "nginxConfig": "nginx.conf.template"
+  },
+  "database": {
+    "type": "postgresql",
+    "host": "127.0.0.1",
+    "port": 5432,
+    "name": "virtual_class",
+    "user": "vcuser",
+    "password": "vcpass123"
+  },
+  "redis": {
+    "host": "127.0.0.1",
+    "port": 6379
+  }
+}
